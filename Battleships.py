@@ -1,6 +1,3 @@
-#1 Mark for including all classes given by the UML class diagram, with correct inheritance structure (ETO)
-#1 Mark if all class attributes are made private/public/protected as specified by the UML class diagram
-#1 Mark if all class methods are made private/public/protected as specified by the UML class diagram
 from abc import ABCMeta, abstractmethod
 from random import randint
 import os
@@ -9,7 +6,6 @@ from pygame import mixer
 import time
 
 class Board():
-    #1 Mark for defining a constructor for the class Board with appropriate attributes
     def __init__(self, width, height, number):
         self.__columns = width
         self.__rows = height
@@ -26,7 +22,6 @@ class Board():
         firstLine += "|"
         print(firstLine)
 
-        #1 Mark for displaying hits, misses, ships and unshot locations on the board (ETO)
         for r in range(self.__rows):
             print(str(chr(r+65)), end='')
             for x in self.__board[r]:
@@ -38,14 +33,12 @@ class Board():
                 print("| " + y + " ", end="")
             print("|")
 
-    #1 Mark for creating relevant accessor methods to access Board's private attributes
     def getWidth(self):
         return self.__columns
 
     def getHeight(self):
         return self.__rows
 
-    #1 Mark for implementing the takeShot method as described
     def takeShot(self, row, column):
         if self.__board[row][column] == "M" or self.__board[row][column] == "X":
             return "Invalid"
@@ -56,9 +49,7 @@ class Board():
             self.__board[row][column] = "M"
             return "Miss"
 
-    #1 Mark for overriding placeShip to work with either a human player or CPU player (ETO)
     def placeShip(self, size, number, player="CPU"):
-        #1 Mark for looping until valid input is given (ETO)
         while True:
             columnSet = False
             rowSet = False
@@ -67,7 +58,6 @@ class Board():
             if player == "Human":
                 self.display(number)
 
-            #1 Mark for getting a valid location on the board (ETO)
             while not columnSet:
                 if player == "Human":
                     try:
@@ -87,7 +77,6 @@ class Board():
             while not rowSet:
                 if player == "Human":
                     try:
-                        #1 Mark for accepting letter input and converting into appropriate row (A is row 1/board[0], C is row 3/board[2] etc.) (ETO)
                         row = ord(input("Enter the row where you would like to position the ship (A-" + str(chr(self.__rows+65)) + "): ").upper())
                         print()
                         if row >= 65 and row <= self.__rows+65:
@@ -103,7 +92,6 @@ class Board():
 
             validPos = True
 
-            #1 Mark for getting the orientation of the ship (ETO)
             while not orientationSet:
                 if player == "Human":
                     orientation = input("Do you want to place your ship vertically down or horizontally to the right(v/h)?: ")
@@ -145,7 +133,6 @@ class Board():
             if player == "Human":
                 print("You can't position the ship like that! Try again (The ship is " + size + "tiles long):")
 
-    #1 Mark for implementing the checkWinner method as described
     def checkWinner(self):
         for r in range(self.__rows):
             for c in range(self.__columns):
@@ -154,20 +141,17 @@ class Board():
         return True
 
 class Player(metaclass=ABCMeta):
-    #1 Mark for defining a constructor for the class Player with appropriate attributes
     def __init__(self, number, width, height):
         self._playerNumber = number
         self._playerBoard = Board(width, height, number)
         self._placeShips()
 
-    #1 Mark for creating relevant accessor methods to access Player's private attributes
     def getNumber(self):
         return self._playerNumber
 
     def getBoard(self):
         return self._playerBoard
 
-    #1 Mark for defining appropriate abstract methods
     @abstractmethod
     def _placeShips(self):
         pass
@@ -185,7 +169,6 @@ class Player(metaclass=ABCMeta):
         pass
 
 class HumanPlayer(Player):
-    #1 Mark for implementing the placeShips method as described (ETO)
     def _placeShips(self):
         print("Position your carrier (5 tiles long): ")
         self._playerBoard.placeShip(5, self._playerNumber, "Human")
@@ -209,7 +192,6 @@ class HumanPlayer(Player):
         print()
         time.sleep(2)
 
-    #1 Mark for implementing the takeShot method as described
     def takeShot(self, board):
         shotMade = False
         while not shotMade:
@@ -223,7 +205,6 @@ class HumanPlayer(Player):
                 print(result)
                 time.sleep(2)
 
-    #1 Mark for implementing the getColumn method as described
     def _getColumn(self, board):
         while True:
             try:
@@ -235,7 +216,6 @@ class HumanPlayer(Player):
             except:
                 print("That column doesn't exist. Please try again.")
 
-    #1 Mark for implementing the getRow method as described
     def _getRow(self, board):
         while True:
             try:
@@ -249,7 +229,6 @@ class HumanPlayer(Player):
                 print("That row doesn't exist. Please try again.")
 
 class ComputerPlayer(Player):
-    #1 Mark for implementing the placeShips method as described (ETO)
     def _placeShips(self):
         print("The computer is positioning its ships...\n")
         time.sleep(3)
@@ -260,7 +239,6 @@ class ComputerPlayer(Player):
         self._playerBoard.placeShip(2, self._playerNumber)
         print("The computer has positioned its ships!")
 
-    #1 Mark for implementing the takeShot method as described
     def takeShot(self, board):
         shotMade = False
         while not shotMade:
@@ -272,11 +250,9 @@ class ComputerPlayer(Player):
                 print(result)
                 time.sleep(2)
 
-    #1 Mark for implementing the getColumn method as described
     def _getColumn(self, board):
         return randint(0, board.getWidth()-1)
 
-    #1 Mark for implementing the getRow method as described
     def _getRow(self, board):
         return randint(0, board.getHeight()-1)
 
