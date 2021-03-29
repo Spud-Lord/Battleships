@@ -3,13 +3,17 @@
 #1 Mark if all class methods are made private/public/protected as specified by the UML class diagram
 from abc import ABCMeta, abstractmethod
 from random import randint
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+from pygame import mixer
+import time
 
 class Board():
     #1 Mark for defining a constructor for the class Board with appropriate attributes
     def __init__(self, width, height, number):
         self.__columns = width
         self.__rows = height
-        self.__board = [["~"]*self.__columns for i in range(self.__rows)]
+        self.__board = [[" "]*self.__columns for i in range(self.__rows)]
         self.__playerNumber = number
 
     def display(self, number):
@@ -21,14 +25,14 @@ class Board():
                 firstLine += ("|" + str(c+1) + " ")
         firstLine += "|"
         print(firstLine)
-        
+
         #1 Mark for displaying hits, misses, ships and unshot locations on the board (ETO)
         for r in range(self.__rows):
             print(str(chr(r+65)), end='')
             for x in self.__board[r]:
                 #1 Mark for hiding the locations of the opponent's ships (ETO)
-                if self.__playerNumber != number and x == "S":
-                    y = "~"
+                if self.__playerNumber != number and x == "■":
+                    y = " "
                 else:
                     y = x
                 print("| " + y + " ", end="")
@@ -37,21 +41,21 @@ class Board():
     #1 Mark for creating relevant accessor methods to access Board's private attributes
     def getWidth(self):
         return self.__columns
-    
+
     def getHeight(self):
         return self.__rows
-    
+
     #1 Mark for implementing the takeShot method as described
     def takeShot(self, row, column):
-        if self.__board[row][column] == "." or self.__board[row][column] == "X":
+        if self.__board[row][column] == "M" or self.__board[row][column] == "X":
             return "Invalid"
-        elif self.__board[row][column] == "S":
+        elif self.__board[row][column] == "■":
             self.__board[row][column] = "X"
             return "Hit"
         else:
-            self.__board[row][column] = "."
+            self.__board[row][column] = "M"
             return "Miss"
-    
+
     #1 Mark for overriding placeShip to work with either a human player or CPU player (ETO)
     def placeShip(self, size, number, player="CPU"):
         #1 Mark for looping until valid input is given (ETO)
@@ -59,15 +63,15 @@ class Board():
             columnSet = False
             rowSet = False
             orientationSet = False
-            
+
             if player == "Human":
                 self.display(number)
-            
+
             #1 Mark for getting a valid location on the board (ETO)
             while not columnSet:
                 if player == "Human":
                     try:
-                        column = int(input("Enter the column where you would like to position the ship (1-" + str(self.__columns) + "):"))
+                        column = int(input("Enter the column where you would like to position the ship (1-" + str(self.__columns) + "): "))
                         print()
                         if column >= 1 and column <= self.__columns:
                             column = column - 1
@@ -79,12 +83,12 @@ class Board():
                 else:
                     column = randint(0, self.__columns -1)
                     columnSet = True
-                    
+
             while not rowSet:
                 if player == "Human":
                     try:
                         #1 Mark for accepting letter input and converting into appropriate row (A is row 1/board[0], C is row 3/board[2] etc.) (ETO)
-                        row = ord(input("Enter the row where you would like to position the ship (A-" + str(chr(self.__rows+65)) + "):").upper())
+                        row = ord(input("Enter the row where you would like to position the ship (A-" + str(chr(self.__rows+65)) + "): ").upper())
                         print()
                         if row >= 65 and row <= self.__rows+65:
                             row = row-65
@@ -96,56 +100,56 @@ class Board():
                 else:
                     row = randint(0, self.__rows -1)
                     rowSet = True
-            
+
             validPos = True
-            
+
             #1 Mark for getting the orientation of the ship (ETO)
             while not orientationSet:
                 if player == "Human":
-                    orientation = input("Do you want to place your ship vertically down or horizontally to the right(v/h)?:")
+                    orientation = input("Do you want to place your ship vertically down or horizontally to the right(v/h)?: ")
                     print()
                 else:
                     if randint(0,1) == 0:
                         orientation = "v"
                     else:
                         orientation = "h"
-                        
+
                 if orientation.lower() == "v" or orientation.lower() == "vertical":
                     orientationSet = True
                     try:
                         for r in range(row, row + size):
-                            if self.__board[r][column] == "S":
+                            if self.__board[r][column] == "■":
                                 validPos = False
                         if validPos == True:
                             for r in range(row, row + size):
-                                self.__board[r][column] = "S"
+                                self.__board[r][column] = "■"
                             return
                     except:
                         pass
-                    
+
                 elif orientation.lower() == "h" or orientation.lower() == "horizontal":
                     orientationSet = True
                     try:
                         for c in range(column, column + size):
-                            if self.__board[row][c] == "S":
+                            if self.__board[row][c] == "■":
                                 validPos = False
                         if validPos == True:
                             for c in range(column, column + size):
-                                self.__board[row][c] = "S"
+                                self.__board[row][c] = "■"
                             return
                     except:
                         pass
-                    
+
                 else:
                     print("You can only position your ship vertically down (v) or horizontally to the right(h)!")
-            if player == "Human":       
+            if player == "Human":
                 print("You can't position the ship like that! Try again (The ship is " + size + "tiles long):")
-      
-    #1 Mark for implementing the checkWinner method as described    
+
+    #1 Mark for implementing the checkWinner method as described
     def checkWinner(self):
         for r in range(self.__rows):
             for c in range(self.__columns):
-                if self.__board[r][c] == "S":
+                if self.__board[r][c] == "■":
                     return False
         return True
 
@@ -155,52 +159,57 @@ class Player(metaclass=ABCMeta):
         self._playerNumber = number
         self._playerBoard = Board(width, height, number)
         self._placeShips()
-     
-    #1 Mark for creating relevant accessor methods to access Player's private attributes    
+
+    #1 Mark for creating relevant accessor methods to access Player's private attributes
     def getNumber(self):
         return self._playerNumber
-    
+
     def getBoard(self):
         return self._playerBoard
-    
+
     #1 Mark for defining appropriate abstract methods
     @abstractmethod
     def _placeShips(self):
         pass
-    
+
     @abstractmethod
     def takeShot(self, board):
         pass
-      
+
     @abstractmethod
     def _getColumn(self):
         pass
-    
+
     @abstractmethod
     def _getRow(self):
         pass
-    
+
 class HumanPlayer(Player):
-    #1 Mark for implementing the placeShips method as described (ETO)               
+    #1 Mark for implementing the placeShips method as described (ETO)
     def _placeShips(self):
-        print("Position your carrier (5 tiles long):")
+        print("Position your carrier (5 tiles long): ")
         self._playerBoard.placeShip(5, self._playerNumber, "Human")
-        print("Your carrier is in position!")
-        print("Position your battleship (4 tiles long):")
+        print("Your carrier is in position!\n")
+        time.sleep(2)
+        print("Position your battleship (4 tiles long): ")
         self._playerBoard.placeShip(4, self._playerNumber, "Human")
-        print("Your battleship is in position!")
-        print("Position your cruiser (3 tiles long):")
+        print("Your battleship is in position!\n")
+        time.sleep(2)
+        print("Position your cruiser (3 tiles long): ")
         self._playerBoard.placeShip(3, self._playerNumber, "Human")
-        print("Your cruiser is in position!")
-        print("Position your submarine (3 tiles long):")
+        print("Your cruiser is in position!\n")
+        time.sleep(2)
+        print("Position your submarine (3 tiles long): ")
         self._playerBoard.placeShip(3, self._playerNumber, "Human")
-        print("Your submarine is in position!")
-        print("Position your destroyer (2 tiles long):")
+        print("Your submarine is in position!\n")
+        time.sleep(2)
+        print("Position your destroyer (2 tiles long): ")
         self._playerBoard.placeShip(2, self._playerNumber, "Human")
         print("Your destroyer is in position!")
         print()
-      
-    #1 Mark for implementing the takeShot method as described 
+        time.sleep(2)
+
+    #1 Mark for implementing the takeShot method as described
     def takeShot(self, board):
         shotMade = False
         while not shotMade:
@@ -212,8 +221,9 @@ class HumanPlayer(Player):
             else:
                 shotMade = True
                 print(result)
-    
-    #1 Mark for implementing the getColumn method as described 
+                time.sleep(2)
+
+    #1 Mark for implementing the getColumn method as described
     def _getColumn(self, board):
         while True:
             try:
@@ -224,8 +234,8 @@ class HumanPlayer(Player):
                     print("That column doesn't exist. Please try again.")
             except:
                 print("That column doesn't exist. Please try again.")
-    
-    #1 Mark for implementing the getRow method as described 
+
+    #1 Mark for implementing the getRow method as described
     def _getRow(self, board):
         while True:
             try:
@@ -237,19 +247,20 @@ class HumanPlayer(Player):
                     print("That row doesn't exist. Please try again.")
             except:
                 print("That row doesn't exist. Please try again.")
-    
-class ComputerPlayer(Player):   
+
+class ComputerPlayer(Player):
     #1 Mark for implementing the placeShips method as described (ETO)
     def _placeShips(self):
-        print("The computer is positioning its ships...")
+        print("The computer is positioning its ships...\n")
+        time.sleep(3)
         self._playerBoard.placeShip(5, self._playerNumber)
         self._playerBoard.placeShip(4, self._playerNumber)
         self._playerBoard.placeShip(3, self._playerNumber)
         self._playerBoard.placeShip(3, self._playerNumber)
         self._playerBoard.placeShip(2, self._playerNumber)
         print("The computer has positioned its ships!")
-        
-    #1 Mark for implementing the takeShot method as described 
+
+    #1 Mark for implementing the takeShot method as described
     def takeShot(self, board):
         shotMade = False
         while not shotMade:
@@ -258,23 +269,24 @@ class ComputerPlayer(Player):
             result = board.takeShot(row, column)
             if result != "Invalid":
                 shotMade = True
-                print(result) 
-    
-    #1 Mark for implementing the getColumn method as described 
+                print(result)
+                time.sleep(2)
+
+    #1 Mark for implementing the getColumn method as described
     def _getColumn(self, board):
         return randint(0, board.getWidth()-1)
-    
+
     #1 Mark for implementing the getRow method as described
     def _getRow(self, board):
         return randint(0, board.getHeight()-1)
-    
+
 def main():
     widthSet = False
     heightSet = False
-    
+
     while not widthSet:
         try:
-            width = int(input("Enter the width of your game board (10-26):"))
+            width = int(input("Enter the width of your game board (10-26): "))
             print()
             if width >= 10 and width <= 26:
                 widthSet = True
@@ -282,10 +294,10 @@ def main():
                 print("The width must be an integer from 10-26. Please try again.")
         except:
             print("The width must be an integer from 10-26. Please try again.")
-        
+
     while not heightSet:
         try:
-            height = int(input("Enter the height of your game board (10-26):"))
+            height = int(input("Enter the height of your game board (10-26): "))
             print()
             if height >= 10 and height <= 26:
                 heightSet = True
@@ -293,20 +305,23 @@ def main():
                 print("The height must be an integer from 10-26. Please try again.")
         except:
             print("The height must be an integer from 10-26. Please try again.")
-        
+
     player1 = HumanPlayer(1, width, height)
     player2 = ComputerPlayer(2, width, height)
     board1 = player1.getBoard()
     board2 = player2.getBoard()
-	
-    while True: 
+
+    while True:
+        mixer.init()
+        mixer.music.load("Battle.Of.The.Heroes.mp3")
+        mixer.music.play(20)
         print()
         print("It's your turn:")
-        
+
         makeShot = False
-        
+
         while not makeShot:
-            result = input("Would you like to take a shot(1), look at the computer's board(2), or look at your board(3)?:")
+            result = input("Would you like to take a shot(1), look at the computer's board(2), or look at your board(3)?: ")
             print()
             if result == "1":
                 makeShot = True
@@ -316,18 +331,19 @@ def main():
                 board1.display(player1.getNumber())
             else:
                 print("That is not a valid option!")
-            
+
         board2.display(player1.getNumber())
         player1.takeShot(board2)
-        
+
         if board2.checkWinner():
             print()
             board2.display(player1.getNumber())
             input("You have won!")
             return
-            
+
         print()
         print("It's the computer's turn:")
+        time.sleep(2)
         player2.takeShot(board1)
         board1.display(player1.getNumber())
         if board1.checkWinner():
@@ -335,6 +351,6 @@ def main():
             board1.display(player1.getNumber())
             input("You have lost!")
             return
-    
+
 if __name__ == '__main__':
     main()
