@@ -195,6 +195,7 @@ class HumanPlayer(Player):
     def takeShot(self, board):
         shotMade = False
         while not shotMade:
+            print("")
             column = self._getColumn(board)
             row = self._getRow(board)
             result = board.takeShot(row, column)
@@ -219,6 +220,7 @@ class HumanPlayer(Player):
     def _getRow(self, board):
         while True:
             try:
+                print("")
                 row = ord(input("Enter the row you would like to target (A-" + str(chr(board.getHeight()+64)) + "):").upper())
                 print()
                 if row >= 65 and row < board.getHeight() + 65:
@@ -292,7 +294,7 @@ def main():
         mixer.music.load("Battle.Of.The.Heroes.mp3")
         mixer.music.play(20)
         print()
-        print("It's your turn:")
+        print("It's your turn:\n")
 
         makeShot = False
 
