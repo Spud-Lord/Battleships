@@ -203,6 +203,7 @@ class HumanPlayer(Player):
                 print("You've already shot that target, aim somewhere else!")
             else:
                 shotMade = True
+                mixer.init()
                 mixer.music.load("Gunshot.mp3")
                 mixer.music.play()
                 time.sleep(1)
@@ -252,6 +253,11 @@ class ComputerPlayer(Player):
             result = board.takeShot(row, column)
             if result != "Invalid":
                 shotMade = True
+                mixer.init()
+                mixer.music.load("Gunshot.mp3")
+                mixer.music.play()
+                time.sleep(1)
+                print("")
                 print(result)
                 time.sleep(2)
 
