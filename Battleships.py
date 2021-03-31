@@ -203,6 +203,9 @@ class HumanPlayer(Player):
                 print("You've already shot that target, aim somewhere else!")
             else:
                 shotMade = True
+                mixer.music.load("Gunshot.mp3")
+                mixer.music.play()
+                time.sleep(1)
                 print(result)
                 time.sleep(2)
 
@@ -290,9 +293,6 @@ def main():
     board2 = player2.getBoard()
 
     while True:
-        mixer.init()
-        mixer.music.load("Battle.Of.The.Heroes.mp3")
-        mixer.music.play(20)
         print()
         print("It's your turn:\n")
 
